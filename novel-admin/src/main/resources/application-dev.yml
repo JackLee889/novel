@@ -1,0 +1,18 @@
+java2nb:
+  uploadPath: ${JAVA2NB_UPLOAD_PATH:./data/pic/}
+  username: ${ADMIN_DEMO_USERNAME:}
+  password: ${ADMIN_DEMO_PASSWORD:}
+logging:
+  level:
+    root: info
+    com.java2nb: debug
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      # 连接超时时间（毫秒）
+      timeout: 10000
+
+

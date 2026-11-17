@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="page">
+<head th:replace="~{common/site :: head('全部书评','全部书评，发现好故事，享受阅读。')}"></head>
+<body data-page="comments" >
+<th:block th:replace="~{common/site :: header('books')}"></th:block>
+<main id="main" class="container page-main"><input id="bookId" type="hidden" th:value="${book.id}"><nav class="breadcrumb" aria-label="当前位置"><a href="/">首页</a><span>/</span><a th:href="'/book/'+${book.id}+'.html'" th:text="${book.bookName}"></a><span>/</span><span>全部书评</span></nav><div class="article-layout"><div class="page-title"><div><span class="eyebrow" th:text="${book.bookName}"></span><h1>在这里，聊聊故事。</h1><p>分享你的阅读感受，也听听其他读者的声音。</p></div></div><section class="content-panel"><form method="post" class="comment-form" id="comment-form"><label for="txtComment" class="sr-only">书评内容</label><textarea id="txtComment" name="commentContent" maxlength="1000" required placeholder="写下你的阅读感受…"></textarea><div class="button-row"><span id="emCommentNum" class="character-count">0 / 1000</span><button class="button button-primary" type="submit">发布书评</button></div><p class="form-status" data-form-status role="status" aria-live="polite"></p></form><div id="comment-results" class="" aria-live="polite"><p class="loading-line">正在加载…</p></div><nav id="pagination" class="pagination" aria-label="分页"></nav></section></div></main>
+<th:block th:replace="~{common/site :: footer}"></th:block>
+</body></html>

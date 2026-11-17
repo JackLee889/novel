@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${seo.title}"></title>
+  <meta name="description" th:content="${seo.description}"><meta name="keywords" th:content="${seo.keywords}"><meta name="robots" th:content="${seo.robots}">
+  <meta name="google-site-verification" th:if="${seoVerification != null and !#strings.isEmpty(seoVerification['google'])}" th:content="${seoVerification['google']}">
+  <meta name="baidu-site-verification" th:if="${seoVerification != null and !#strings.isEmpty(seoVerification['baidu'])}" th:content="${seoVerification['baidu']}">
+  <link rel="canonical" th:if="${!#strings.isEmpty(seo.canonical)}" th:href="${seo.canonical}">
+  <script id="seo-jsonld" type="application/ld+json" th:if="${!#strings.isEmpty(seo.jsonLd)}" th:utext="${seo.jsonLd}"></script>
+  <link rel="stylesheet" href="/css/reader.css?v=20261007.6">
+  <link rel="stylesheet" href="/css/player-dock.css?v=20261007.3">
+  <link rel="stylesheet" href="/css/stats.css?v=20261009.7">
+  <script type="module" src="/javascript/site/stats.js?v=20261009.2"></script>
+  <script type="module" src="/javascript/reader/controller.js?v=20261020.1"></script>
+</head>
+<body class="reader-page">
+<div id="reader" th:attr="data-tts-enabled=${readerTts.enabled},data-manifest=${readerTts.manifestUrl},data-payment-enabled=${businessFeatures != null and businessFeatures.paymentEnabled}" data-theme="auto">
+  <header class="rd-header">
+    <a href="/" class="rd-brand" aria-label="返回首页">
+      <img th:src="${application.website.logo}" alt="" width="800" height="200">
+      <span th:text="${application.website.name}">小说精品屋</span>
+    </a>
+    <button class="rd-book" data-action="catalog" th:text="${book.bookName}" th:aria-label="${book.bookName} + '，打开目录'"></button>
+    <div class="rd-header-tools">
+      <button data-action="bookmark" aria-label="保存本地书签" title="本地书签"><span class="rd-icon rd-icon-bookmark" aria-hidden="true"></span><span class="rd-control-label">书签</span></button>
+      <button data-action="focus" aria-label="专注阅读" aria-pressed="false" title="专注阅读"><span class="rd-icon rd-icon-focus" aria-hidden="true"></span><span class="rd-control-label">专注</span></button>
+    </div>
+  </header>
+  <div class="rd-workspace">
+    <nav class="rd-tools" aria-label="阅读工具">
+      <button data-action="catalog"><span class="rd-icon rd-icon-list" aria-hidden="true"></span><span>目录</span></button>
+      <button data-action="reading"><span class="rd-aa" aria-hidden="true">Aa</span>设置</button>
+      <button data-action="voice" th:hidden="${!readerTts.enabled}"><span class="rd-icon rd-icon-headphones" aria-hidden="true"></span><span>听书</span></button>
+      <button data-action="theme"><span class="rd-icon rd-icon-moon" aria-hidden="true"></span><span>夜间</span></button>
+    </nav>
+    <main class="rd-main">
+      <div class="rd-chapter-heading">
+        <a class="rd-book-page" th:href="'/book/' + ${book.id} + '.html'" th:text="${book.bookName}"></a>
+        <h1 id="chapter-title" th:text="${bookIndex.indexName}"></h1>
+      </div>
+      <div class="rd-resume" hidden><span id="resume-description"></span><button data-action="resume-saved">继续上次朗读</button></div>
+      <div id="access-message" class="rd-access" th:hidden="${readerChapter.access == 'allowed'}">
+        <p th:text="${businessFeatures == null or !businessFeatures.paymentEnabled ? '付费章节订阅暂时关闭，可继续阅读免费章节。' : (readerChapter.access == 'need_login' ? '此章为 VIP 章节，请先登录后订阅。' : '此章为 VIP 章节，需要订阅后才能继续阅读。')}"></p>
+        <a th:href="'/user/login.html?originUrl=/book/' + ${book.id} + '/' + ${bookIndex.id} + '.html'" data-login>登录</a>
+        <button data-action="purchase" th:if="${readerChapter.access == 'need_purchase' and businessFeatures != null and businessFeatures.paymentEnabled}"
+            th:text="'购买本章 · ' + ${bookIndex.bookPrice} + ' 屋币'"></button>
+      </div>
+      <article id="reader-prose" class="rd-prose" aria-label="小说正文">
+        <p th:each="paragraph : ${readerChapter.paragraphs}" class="rd-paragraph" tabindex="0"
+           th:attr="data-paragraph=${paragraph.id}" th:text="${paragraph.text}"></p>
+      </article>
+      <div id="paragraph-action" class="rd-context" hidden><button data-action="from-paragraph">从这里朗读</button></div>
+      <nav class="rd-chapter-nav" aria-label="章节翻页">
+        <a data-chapter="previous" th:href="${readerChapter.previousChapterId == null ? '/book/indexList-' + book.id + '.html' : '/book/' + book.id + '/' + readerChapter.previousChapterId + '.html'}">上一章</a>
+        <a data-action="catalog" th:href="'/book/indexList-' + ${book.id} + '.html'">目录</a>
+        <a data-chapter="next" th:href="${readerChapter.nextChapterId == null ? '/book/indexList-' + book.id + '.html' : '/book/' + book.id + '/' + readerChapter.nextChapterId + '.html'}">下一章</a>
+      </nav>
+      <nav class="rd-business" aria-label="书籍功能">
+        <a th:href="'/book/' + ${book.id} + '.html'" data-book-page>书页</a>
+        <button data-action="shelf">加入书架</button>
+        <a th:href="'/book/comment-' + ${book.id} + '.html'" data-comments>评论</a>
+        <button type="button" class="rd-feedback-entry" data-feedback-open aria-haspopup="dialog" aria-controls="chapter-feedback">本章报错</button>
+        <a href="/user/favorites.html">我的书架</a>
+        <a href="/user/login.html" data-login>登录</a>
+      </nav>
+      <th:block th:replace="~{common/site :: stats(true)}"></th:block>
+      <noscript><p>正文和翻页链接可直接使用；启用 JavaScript 后可听书和调整阅读设置。</p></noscript>
+    </main>
+  </div>
+  <div class="rd-listen-area">
+    <button data-action="follow-current" class="rd-follow" hidden>回到朗读位置</button>
+    <section class="rd-player" aria-label="朗读播放器" th:hidden="${!readerTts.enabled}">
+      <div class="rd-player-main">
+        <div class="rd-audio-identity"><strong id="audio-title" th:text="${bookIndex.indexName}"></strong>
+          <span id="audio-state" role="status" aria-live="polite">中英双语朗读，随时开始</span>
+        </div>
+        <div class="rd-transport">
+          <button data-action="previous-segment" aria-label="上一段" title="上一段"><span class="rd-icon rd-icon-back" aria-hidden="true"></span><span class="rd-control-label">上段</span></button>
+          <button data-action="play" class="rd-play" aria-label="开始朗读"><span class="rd-icon rd-icon-play" aria-hidden="true"></span><span class="rd-control-label">播放</span></button>
+          <button data-action="next-segment" aria-label="下一段" title="下一段"><span class="rd-icon rd-icon-next" aria-hidden="true"></span><span class="rd-control-label">下段</span></button>
+        </div>
+        <div class="rd-player-extras"><button data-action="voice" class="rd-speed">1.0×</button><button data-action="stop">停止</button></div>
+      </div>
+      <div class="rd-player-track">
+        <input id="segment-progress" type="range" min="0" max="0" value="0" step="1" aria-label="朗读片段进度">
+        <span id="segment-count">尚未朗读</span>
+      </div>
+      <div class="rd-error" hidden><span id="error-text"></span><button data-action="retry">重试</button></div>
+    </section>
+  </div>
+  <dialog id="reader-panel" class="rd-panel" aria-labelledby="panel-title">
+    <div class="rd-panel-header"><h2 id="panel-title">阅读设置</h2><button data-action="close" aria-label="关闭面板">关闭</button></div>
+    <div id="panel-body" class="rd-panel-body"></div>
+  </dialog>
+  <dialog id="chapter-feedback" class="rd-panel rd-feedback" aria-labelledby="feedback-title" aria-describedby="feedback-context">
+    <div class="rd-panel-header"><h2 id="feedback-title">反馈本章问题</h2><button type="button" data-feedback-close aria-label="关闭章节反馈">关闭</button></div>
+    <div class="rd-panel-body">
+      <div id="feedback-context" class="rd-report-context"><p data-feedback-book th:text="${book.bookName}"></p><p data-feedback-chapter th:text="${bookIndex.indexName}"></p></div>
+      <p class="rd-help">书名和章节会自动附上，方便我们核查。</p>
+      <div data-feedback-login hidden><p class="rd-help">登录后即可提交本章问题，并查看你的反馈记录。</p><a class="rd-report-submit" href="/user/login.html">登录后反馈</a></div>
+      <form id="chapter-feedback-form" method="post" action="/book/reader/feedback">
+        <div class="rd-setting"><label for="feedback-type">问题类型</label><select id="feedback-type" name="type" required>
+          <option value="">请选择遇到的问题</option><option value="typo">错字 / 乱码</option><option value="missing">内容缺失 / 正文为空</option>
+          <option value="duplicate">重复内容</option><option value="order">章节顺序 / 标题</option><option value="other">其他问题</option>
+        </select></div>
+        <div class="rd-setting"><label for="feedback-details" data-feedback-detail-label>补充说明（选填）</label><textarea id="feedback-details" name="details" maxlength="200" rows="4" placeholder="例如：哪一段有问题，或哪里缺少了内容…"></textarea><small class="rd-help">最多 200 字；其他问题请补充说明。</small></div>
+        <button type="submit" class="rd-report-submit">提交反馈</button>
+      </form>
+      <p class="rd-report-status" data-feedback-status role="status" aria-live="polite"></p>
+      <div data-feedback-success hidden><p class="rd-help">反馈已提交，感谢你帮助我们改善阅读体验。</p><a href="/user/feedback_list.html">查看我的反馈 →</a></div>
+      <a class="rd-report-history" href="/user/feedback_list.html">我的反馈</a>
+    </div>
+  </dialog>
+  <div id="reader-notice" class="rd-notice" role="status" hidden></div>
+</div>
+<script id="reader-data" type="application/json" th:utext="${readerJson}"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="page">
+<head th:replace="~{common/site :: head('暂时无法显示页面','暂时无法显示页面，发现好故事，享受阅读。')}"></head>
+<body data-page="error" >
+<th:block th:replace="~{common/site :: header('home')}"></th:block>
+<main id="main" class="container page-main"><section class="error-page"><span class="eyebrow">稍候再试</span><h1>页面暂时没有准备好。</h1><p>请稍后重新访问。你也可以返回书城，继续阅读。</p><div class="button-row"><a class="button button-primary" href="/">返回首页</a><a class="button" href="/user/feedback.html">反馈问题</a></div></section></main>
+<th:block th:replace="~{common/site :: footer}"></th:block>
+</body></html>

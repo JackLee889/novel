@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="page">
+<head th:replace="~{common/site :: head('页面未找到','页面未找到，发现好故事，享受阅读。')}"></head>
+<body data-page="error" >
+<th:block th:replace="~{common/site :: header('home')}"></th:block>
+<main id="main" class="container page-main"><section class="error-page"><div class="error-number" aria-hidden="true">404</div><h1>这一页，暂时找不到了。</h1><p>链接可能有误，或内容已经移动。<br>回到书城，继续寻找喜欢的故事吧。</p><div class="button-row"><a class="button button-primary" href="/">返回首页</a><a class="button" href="/book/bookclass.html">浏览全部作品</a></div></section></main>
+<th:block th:replace="~{common/site :: footer}"></th:block>
+</body></html>

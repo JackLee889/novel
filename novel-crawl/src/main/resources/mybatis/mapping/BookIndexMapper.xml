@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java2nb.novel.mapper.CrawlBookIndexMapper">
+
+    <select id="queryLastIndex" parameterType="long" resultType="com.java2nb.novel.entity.BookIndex">
+
+
+        select id,index_name,index_num,create_time,update_time
+        from book_index where book_id = #{bookId}
+        order by index_num DESC limit 1
+
+    </select>
+
+    <!-- [审查01] 章节号重排：先把 plan 里的行挪到高位临时区间，避免唯一键 key_uq_bookId_indexNum 中间态冲突。
+         只挪传入 id 的行、且用正数高位：整本挪或负数区间都会在异常/并发下留下永久错乱的行。 -->
+    <update id="parkBookIndexNums">
+        update book_index
+        set index_num = index_num + #{offset}
+        where book_id = #{bookId}
+          and index_num &gt;= 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- [审查01] 章节号重排：按新的目录顺序赋回最终章节号 -->
+    <update id="updateBookIndexNum">
+        update book_index
+        set index_num = #{indexNum}
+        where id = #{id}
+    </update>
+
+    <!-- All plan rows have already been parked; restore only their numbers in bounded batches. -->
+    <update id="updateBookIndexNums">
+        update book_index
+        set index_num = case id
+        <foreach collection="rows" item="row">when #{row.id} then #{row.indexNum}</foreach>
+        end
+        where book_id = #{bookId} and id in
+        <foreach collection="rows" item="row" open="(" separator="," close=")">#{row.id}</foreach>
+    </update>
+
+    <!-- Parser identity backfills contain only these three columns. Preserve all chapter content metadata. -->
+    <update id="updateIdentityMetadata">
+        update book_index
+        set source_index_id = case id
+        <foreach collection="rows" item="row">when #{row.id} then #{row.sourceIndexId}</foreach>
+        end,
+        index_num = case id
+        <foreach collection="rows" item="row">when #{row.id} then #{row.indexNum}</foreach>
+        end,
+        update_time = case id
+        <foreach collection="rows" item="row">when #{row.id} then #{row.updateTime}</foreach>
+        end
+        where book_id = #{bookId} and id in
+        <foreach collection="rows" item="row" open="(" separator="," close=")">#{row.id}</foreach>
+    </update>
+
+</mapper>

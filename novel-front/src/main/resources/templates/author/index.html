@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="page">
+<head th:replace="~{common/site :: head('作家专区','作家专区，发现好故事，享受阅读。')}"></head>
+<body data-page="author-books" data-requires-login>
+<th:block th:replace="~{common/site :: header('author')}"></th:block>
+<main id="main" class="container page-main"><div class="account-layout"><nav th:replace="~{common/site :: authorNav('index')}"></nav><section class="account-content"><div class="author-topline"><h1>我的作品</h1><a class="button button-primary" href="/author/book_add.html">新建作品<span class="icon icon-pencil" aria-hidden="true"></span></a></div><div id="author-books" class="" aria-live="polite"><p class="loading-line">正在加载…</p></div><nav id="pagination" class="pagination" aria-label="分页"></nav></section></div></main>
+<th:block th:replace="~{common/site :: footer}"></th:block>
+</body></html>

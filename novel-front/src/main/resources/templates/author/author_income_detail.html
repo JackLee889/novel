@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="page">
+<head th:replace="~{common/site :: head('订阅明细','订阅明细，发现好故事，享受阅读。')}"></head>
+<body data-page="income-daily" data-requires-login>
+<th:block th:replace="~{common/site :: header('author')}"></th:block>
+<main id="main" class="container page-main"><div class="account-layout"><nav th:replace="~{common/site :: authorNav('author_income_detail')}"></nav><section class="account-content"><div class="author-topline"><h1>订阅明细</h1></div><form method="post" id="income-filter" class="field-inline"><label>起始日期<input type="date" name="startTime" class="button"></label><label>结束日期<input type="date" name="endTime" class="button"></label><button type="submit" class="button">查询</button></form><div class="table-wrap"><table class="update-list"><thead><tr><th scope="col">日期</th><th scope="col">订阅金额</th><th scope="col">订阅次数</th><th scope="col">订阅人数</th></tr></thead><tbody id="income-results"><tr><td colspan="4">正在加载…</td></tr></tbody></table></div><nav id="pagination" class="pagination" aria-label="分页"></nav></section></div></main>
+<th:block th:replace="~{common/site :: footer}"></th:block>
+</body></html>

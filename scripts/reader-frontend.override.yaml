@@ -1,0 +1,10 @@
+# Future release only. Use with the existing Compose and --no-deps front.
+services:
+  front:
+    image: ${NOVEL_FRONT_IMAGE:?Set an explicit versioned front image}
+    environment:
+      READER_ENABLED: "true"
+      READER_TTS_ENABLED: "true"
+      READER_TTS_RESOURCE_DIRECTORY: /opt/reader-resources
+    volumes:
+      - "${READER_RESOURCE_HOST_DIR:?Set the prepared reader-resources path}:/opt/reader-resources:ro"

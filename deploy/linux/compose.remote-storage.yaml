@@ -1,0 +1,70 @@
+# Compose >= 2.24.4. Put this LAST after the release and feature overlays.
+# MySQL and NFS use the storage server; Redis uses the application server.
+# REDIS_HOST can override the Redis container name on the shared Docker network.
+# Mount REMOTE_STORAGE_ROOT from that server before starting applications.
+# This disables local storage in ordinary up operations; the explicit legacy
+# profile is reserved for a separately verified manual recovery procedure.
+x-remote-environment: &remote-environment
+  MYSQL_HOST: ${MYSQL_HOST:-10.78.12.1}
+  MYSQL_PORT: ${MYSQL_PORT:-3306}
+  MYSQL_JDBC_URL: ${MYSQL_JDBC_URL:-jdbc:mysql://${MYSQL_HOST:-10.78.12.1}:${MYSQL_PORT:-3306}/${MYSQL_DATABASE:-novel_plus}?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
+  # The base template hardcodes Redis's service name, so override it explicitly.
+  REDIS_HOST: ${REDIS_HOST:-novel-app-redis-1}
+  REDIS_PORT: ${REDIS_PORT:-6379}
+
+services:
+  mysql:
+    profiles: !override [legacy-local-storage]
+  redis:
+    profiles: !override [legacy-local-storage]
+  init-data:
+    profiles: !override [legacy-local-storage]
+  db-init:
+    profiles: !override [legacy-local-storage-init]
+
+  front:
+    depends_on: !override {}
+    environment:
+      <<: *remote-environment
+    # Volumes merge by container target; config/reader bindings remain intact.
+    volumes:
+      - type: bind
+        source: ${REMOTE_STORAGE_ROOT:-/mnt/novel-storage}/pic
+        target: /data/pic
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${REMOTE_STORAGE_ROOT:-/mnt/novel-storage}/books
+        target: /data/books
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${REMOTE_STORAGE_ROOT:-/mnt/novel-storage}/seo
+        target: /data/seo
+        bind: {create_host_path: false}
+
+  admin:
+    depends_on: !override {}
+    environment:
+      <<: *remote-environment
+    volumes:
+      - type: bind
+        source: ${REMOTE_STORAGE_ROOT:-/mnt/novel-storage}/pic
+        target: /data/pic
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${REMOTE_STORAGE_ROOT:-/mnt/novel-storage}/books
+        target: /data/books
+        bind: {create_host_path: false}
+
+  crawl:
+    depends_on: !override {}
+    environment:
+      <<: *remote-environment
+    volumes:
+      - type: bind
+        source: ${REMOTE_STORAGE_ROOT:-/mnt/novel-storage}/pic
+        target: /data/pic
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${REMOTE_STORAGE_ROOT:-/mnt/novel-storage}/books
+        target: /data/books
+        bind: {create_host_path: false}

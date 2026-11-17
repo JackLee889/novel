@@ -1,0 +1,9 @@
+# The release is the build context, but only JARs/templates/entrypoint may enter
+# the image. Private config, SQL, resources and .env are never copied to it.
+*
+!Dockerfile
+!entrypoint.sh
+!apps/
+!apps/*.jar
+!templates/
+!templates/**

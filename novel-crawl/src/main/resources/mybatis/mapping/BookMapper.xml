@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java2nb.novel.mapper.CrawlBookMapper">
+
+    <select id="lockBookSummary" resultType="com.java2nb.novel.entity.Book">
+        select id, work_direction, cat_id, cat_name, pic_url, book_name, author_name, book_desc,
+               book_status, is_vip, status, word_count, last_index_id, last_index_name, last_index_update_time
+        from book where id = #{bookId} for update
+    </select>
+
+    <update id="updateBookSummary">
+        update book
+        set last_index_id = #{book.lastIndexId,jdbcType=BIGINT},
+            last_index_name = #{book.lastIndexName,jdbcType=VARCHAR},
+            last_index_update_time = #{book.lastIndexUpdateTime,jdbcType=TIMESTAMP},
+            word_count = #{book.wordCount},
+            update_time = #{book.updateTime}
+        where id = #{book.id}
+    </update>
+
+    <!--
+      [审查09] 原来入选条件是 last_index_update_time > 30 天前，导致断更超过 30 天的书
+               即便源站恢复更新也永远不会再被检查。现在改为「最近未抓取」轮转：
+               crawl_last_time 早于 startDate 的书进入队列，不再依赖本地最新章节时间。
+      [审查06] 原来只有 order by 没有领取，选中后回写 crawl_last_time 也不影响入选条件，
+               多线程会反复取到同一批书。改为按 crawl_last_time 轮转后，选中即回写，
+               下一轮自然换一批。
+      [审查08] 补充 crawl_is_stop 过滤：管理后台标记「停止更新」的书不再被自动更新选中。
+      完结且当前来源的正文已全部核验通过的书退出自动更新；缺章、未核验、无完整性记录
+      或已更换来源的书继续轮转。连载书即使当前目录已采齐，也继续检查后续更新。
+    -->
+    <select id="queryNeedUpdateBook" resultType="com.java2nb.novel.entity.Book">
+
+        select id,crawl_source_id,crawl_book_id,crawl_last_time,pic_url,word_count
+        from book
+        where crawl_source_id is not null
+          and crawl_source_id in (select id from crawl_source where source_status = 1)
+          and (crawl_is_stop is null or crawl_is_stop = 0)
+          and (crawl_last_time is null or crawl_last_time &lt;= #{startDate})
+          and not exists (
+              select 1 from crawl_collection_state collection
+              where collection.book_id = book.id
+                and book.book_status = 1
+                and collection.source_id = book.crawl_source_id
+                and collection.source_book_id = book.crawl_book_id
+                and collection.source_completed = 1
+                and collection.collection_status = 'COMPLETE'
+                and collection.expected_count &gt; 0
+                and collection.ready_count = collection.expected_count
+                and collection.missing_count = 0
+                and collection.unchecked_count = 0
+                and collection.failed_count = 0
+                and collection.deferred_count = 0
+          )
+        order by crawl_last_time
+        limit #{limit}
+
+
+    </select>
+
+    <select id="queryTotalWordCount" parameterType="long" resultType="int">
+
+        select coalesce(sum(word_count), 0) from book_index where book_id = #{bookId}
+    </select>
+
+    <update id="updateCrawlLastTime">
+        update book set crawl_last_time = #{currentDate}
+        where id in
+        <foreach item="book" collection="books" open="(" separator="," close=")">
+            #{book.id}
+        </foreach>
+    </update>
+
+
+</mapper>

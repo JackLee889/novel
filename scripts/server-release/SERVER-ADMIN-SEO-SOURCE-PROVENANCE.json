@@ -1,0 +1,59 @@
+{
+  "source_provenance": "Unmodified ORIGINAL Java source preserved before the io-four changes. No decompiler used; no method reconstruction is required for admin.",
+  "source_sha256": "a5ac0b6dc909522e78b733628efcb47e97d6219149d8deb9784de9c80e79b7ba",
+  "compiled_with": "Existing JDK21.0.8+9, -g -parameters -proc:none, current isolated common/crawl/front compiled classes and250cached dependency jars; no downloads.",
+  "canonical_equal": true,
+  "canonical_sha256": "695ff3eed7df61a37848272d5675b5537140fd0c39f0f7602467a7026e558e94",
+  "all_method_instructions_and_metadata_equal": true,
+  "class_and_field_metadata_equal": true,
+  "actual_method_count": 90,
+  "family": {
+    "SeoRepository$BootstrapBatch.class": {
+      "actual_sha256": "f81bd65c063d8fb5ec129543978978dfed231889f2f78241aefc782f940f7f19",
+      "compiled_sha256": "f81bd65c063d8fb5ec129543978978dfed231889f2f78241aefc782f940f7f19",
+      "byte_identical": true
+    },
+    "SeoRepository$BootstrapBook.class": {
+      "actual_sha256": "21dacb2985cfc91e5c515a61449d4fba8e0e6951c51248b4bb144b111d2918b8",
+      "compiled_sha256": "21dacb2985cfc91e5c515a61449d4fba8e0e6951c51248b4bb144b111d2918b8",
+      "byte_identical": true
+    },
+    "SeoRepository$ChapterRow.class": {
+      "actual_sha256": "765f47b8b1019e66ef8e859fca283d7951fa5c248f72fddd89af39f50a21bac0",
+      "compiled_sha256": "765f47b8b1019e66ef8e859fca283d7951fa5c248f72fddd89af39f50a21bac0",
+      "byte_identical": true
+    },
+    "SeoRepository$CoreTicket.class": {
+      "actual_sha256": "30d60613b26f4a2be314e6a334ca203f80d0f0342408554bfc9627009d132baa",
+      "compiled_sha256": "30d60613b26f4a2be314e6a334ca203f80d0f0342408554bfc9627009d132baa",
+      "byte_identical": true
+    },
+    "SeoRepository$Observation.class": {
+      "actual_sha256": "bd0166b77d2a0bb6ab06b2d0f8bc75eb39abb46c442bf85647c181bd4cf67747",
+      "compiled_sha256": "bd0166b77d2a0bb6ab06b2d0f8bc75eb39abb46c442bf85647c181bd4cf67747",
+      "byte_identical": true
+    },
+    "SeoRepository$SnapshotFiles.class": {
+      "actual_sha256": "acfc2deea8268c332b16431726ee9468abca75924a1b20e2d01287d8d52d670d",
+      "compiled_sha256": "acfc2deea8268c332b16431726ee9468abca75924a1b20e2d01287d8d52d670d",
+      "byte_identical": true
+    },
+    "SeoRepository$Ticket.class": {
+      "actual_sha256": "a59e86f3bd5eb9b5433cca61fd5b92a0291d4652e02569b873778157c501de91",
+      "compiled_sha256": "a59e86f3bd5eb9b5433cca61fd5b92a0291d4652e02569b873778157c501de91",
+      "byte_identical": true
+    },
+    "SeoRepository.class": {
+      "actual_sha256": "200bf5ac7685a1290ffd1d8bf0628f96afb8ded1b3c23278144f53fb122c706e",
+      "compiled_sha256": "200bf5ac7685a1290ffd1d8bf0628f96afb8ded1b3c23278144f53fb122c706e",
+      "byte_identical": true
+    }
+  },
+  "requires_compatibility_helper": false,
+  "limits": [
+    "The recovered admin variant must override common only within the admin module. Front/common current source and the separate crawler variant remain unchanged.",
+    "Standard Maven may add different debug tables; canonical business-class equality is the build invariant."
+  ],
+  "all_eight_family_classes_byte_identical": true,
+  "original_snapshot": "doc/io-four-20261022/before-source/novel-common/src/main/java/com/java2nb/novel/seo/SeoRepository.java"
+}

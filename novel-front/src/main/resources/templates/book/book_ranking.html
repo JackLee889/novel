@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="page">
+<head th:replace="~{common/site :: head('排行榜','排行榜，发现好故事，享受阅读。')}"></head>
+<body data-page="ranking">
+<th:block th:replace="~{common/site :: header('rank')}"></th:block>
+<main id="main" class="container page-main"><div class="page-title"><div><span class="eyebrow" th:text="${application.website.name}+' · 阅读与生活'"></span><h1 th:text="${rankName}"></h1><p>看看读者正在读什么，也发现刚刚开始的故事。</p></div></div>
+<div class="ranking-layout"><nav class="side-nav" id="ranking-nav" aria-label="榜单类型"><a href="/book/book_ranking.html" th:attr="aria-current=${rankType==0?'page':null}">点击榜单</a><a href="/book/book_ranking.html?type=1" th:attr="aria-current=${rankType==1?'page':null}">新书榜单</a><a href="/book/book_ranking.html?type=2" th:attr="aria-current=${rankType==2?'page':null}">更新榜单</a><a href="/book/book_ranking.html?type=3" th:attr="aria-current=${rankType==3?'page':null}">评论榜单</a></nav>
+<section><div class="section-heading"><h2 id="rank-name" th:text="${rankName}"></h2><span class="muted" id="rank-count" th:text="${#lists.size(rankBooks)}+' 部作品'"></span></div><div id="ranking-results" class="ranking-list" data-ssr="true">
+<article th:each="book,position:${rankBooks}" class="ranking-item"><span class="rank-number" th:text="${position.count<10?'0'+position.count:position.count}"></span><a th:href="'/book/'+${book.id}+'.html'"><span class="cover"><span class="cover-fallback" th:text="${book.bookName}"></span><img th:if="${book.picUrl}" th:src="${book.picUrl}" th:alt="${book.bookName}+'封面'" width="150" height="210" loading="lazy"></span></a><div><h3><a th:href="'/book/'+${book.id}+'.html'" th:text="${book.bookName}"></a></h3><p class="book-author" th:text="${book.authorName}+' · '+${book.catName}"></p><p class="book-desc" data-rich-description th:text="${@seoMetadataService.descriptionText(book.bookDesc)}"></p><div class="book-meta"><span class="tag tag-green" th:text="${book.bookStatus==1?'已完结':'连载中'}"></span></div></div><div class="rank-metric"><strong th:text="${rankType==3?book.commentCount:(rankType==0?book.visitCount:(rankType==1?book.wordCount:(book.lastIndexUpdateTime==null?'—':#dates.format(book.lastIndexUpdateTime,'MM-dd'))))}"></strong><span th:text="${rankType==0?'次阅读':(rankType==3?'条评论':(rankType==1?'字':'最近更新'))}"></span></div></article>
+<div th:if="${#lists.isEmpty(rankBooks)}" class="state-panel"><h2>这个榜单还没有作品</h2><a href="/book/bookclass.html">浏览全部作品</a></div>
+</div></section></div></main>
+<th:block th:replace="~{common/site :: footer}"></th:block>
+</body></html>

@@ -1,0 +1,263 @@
+# Run from the prepared release root. Requires Docker Compose >= 2.24.4
+# for compose.external-db.yaml's explicit dependency replacement.
+name: ${COMPOSE_PROJECT_NAME:?Set COMPOSE_PROJECT_NAME in .env}
+
+x-app-environment: &app-environment
+  TZ: ${TZ:-Asia/Shanghai}
+  SPRING_PROFILES_ACTIVE: prod
+  SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/application.yaml
+  SERVER_PORT: "8080"
+  VISITOR_STATS_ENABLED: ${VISITOR_STATS_ENABLED:-true}
+  VISITOR_STATS_SITE_URL: ${VISITOR_STATS_SITE_URL:-}
+  VISITOR_STATS_ALLOWED_ORIGINS: ${VISITOR_STATS_ALLOWED_ORIGINS:-}
+  MYSQL_HOST: ${MYSQL_HOST:-mysql}
+  MYSQL_PORT: ${MYSQL_PORT:-3306}
+  MYSQL_DATABASE: ${MYSQL_DATABASE:-novel_plus}
+  MYSQL_USERNAME: ${MYSQL_USERNAME:-novel}
+  MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD for the application database user}
+  MYSQL_JDBC_URL: ${MYSQL_JDBC_URL:-jdbc:mysql://${MYSQL_HOST:-mysql}:${MYSQL_PORT:-3306}/${MYSQL_DATABASE:-novel_plus}?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
+  CONTENT_SAVE_STORAGE: ${CONTENT_SAVE_STORAGE:-db}
+  CONTENT_SAVE_PATH: /data/books
+  PIC_SAVE_PATH: /data/pic
+  PIC_SAVE_TYPE: ${PIC_SAVE_TYPE:-1}
+  PIC_SAVE_STORAGE: ${PIC_SAVE_STORAGE:-local}
+  JAVA2NB_UPLOAD_PATH: /data/pic/
+  JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=75.0 -Dfile.encoding=UTF-8}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+x-app: &app
+  restart: unless-stopped
+  init: true
+  user: ${APP_UID:-10001}:${APP_GID:-10001}
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs:
+    - /tmp:rw,nosuid,noexec,size=256m,mode=1777
+  volumes:
+    - type: bind
+      source: ./config
+      target: /app/config
+      read_only: true
+      bind: {create_host_path: false}
+    - pic-data:/data/pic
+    - books-data:/data/books
+  depends_on:
+    mysql: {condition: service_healthy}
+    redis: {condition: service_healthy}
+    init-data: {condition: service_completed_successfully}
+  healthcheck:
+    test: [CMD, /usr/local/bin/novel-entrypoint, healthcheck]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+    start_period: 120s
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: "3"}
+
+services:
+  mysql:
+    image: ${MYSQL_IMAGE:-mysql:8.0.46}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-novel_plus}
+      MYSQL_USER: ${MYSQL_USERNAME:-novel}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
+      # The official MySQL entrypoint rejects an empty root password on NEW
+      # local data. Keep interpolation optional so external-DB mode needs no root secret.
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-}
+    command: [--character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+    volumes: [mysql-data:/var/lib/mysql]
+    # Deliberately no host port and no /docker-entrypoint-initdb.d mount.
+    healthcheck:
+      test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_PASSWORD" mysql --host=127.0.0.1 --user="$$MYSQL_USER" --database="$$MYSQL_DATABASE" --execute="SELECT 1" >/dev/null 2>&1']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+
+  redis:
+    image: ${REDIS_IMAGE:-redis:7.4.5-alpine}
+    restart: unless-stopped
+    user: redis
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
+    command: [/bin/sh, -ec, 'exec redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"']
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$REDIS_PASSWORD" redis-cli --raw ping | grep -qx PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+
+  init-data:
+    image: ${APP_IMAGE_PREFIX:-novel-plus}/front:${APP_IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: front
+        APP_UID: ${APP_UID:-10001}
+        APP_GID: ${APP_GID:-10001}
+        JAVA_BASE_IMAGE: ${JAVA_BASE_IMAGE:-eclipse-temurin:21-jre-jammy}
+    user: "0:0"
+    restart: "no"
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [CHOWN, FOWNER, DAC_OVERRIDE]
+    security_opt: [no-new-privileges:true]
+    environment:
+      APP_UID: ${APP_UID:-10001}
+      APP_GID: ${APP_GID:-10001}
+      INIT_EXISTING_DATA_OWNERSHIP: ${INIT_EXISTING_DATA_OWNERSHIP:-false}
+    volumes: [pic-data:/data/pic, books-data:/data/books, seo-data:/data/seo]
+    command: [init-data]
+
+  front:
+    <<: *app
+    image: ${APP_IMAGE_PREFIX:-novel-plus}/front:${APP_IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: front
+        APP_UID: ${APP_UID:-10001}
+        APP_GID: ${APP_GID:-10001}
+        JAVA_BASE_IMAGE: ${JAVA_BASE_IMAGE:-eclipse-temurin:21-jre-jammy}
+    ports: ["${FRONT_BIND_ADDRESS:-127.0.0.1}:${FRONT_PORT:-8083}:8080"]
+    environment:
+      <<: *app-environment
+      APP_MODULE: front
+      SPRING_PROFILES_ACTIVE: prod,linux-front
+      TEMPLATE_NAME: ${TEMPLATE_NAME:-green}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET; reuse the current value when migrating existing users}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-604800}
+      CACHE_MANAGER_PASSWORD: ${CACHE_MANAGER_PASSWORD:?Set CACHE_MANAGER_PASSWORD}
+      READER_ENABLED: ${READER_ENABLED:-true}
+      READER_TTS_ENABLED: ${READER_TTS_ENABLED:-true}
+      READER_TTS_RESOURCE_DIRECTORY: /opt/reader-resources
+      FEATURES_PAYMENT_ENABLED: ${FEATURES_PAYMENT_ENABLED:-false}
+      FEATURES_AI_ENABLED: ${FEATURES_AI_ENABLED:-false}
+      FEATURES_SUBMISSION_ENABLED: ${FEATURES_SUBMISSION_ENABLED:-false}
+      WEBSITE_NAME: ${WEBSITE_NAME:-小说精品屋}
+      WEBSITE_DOMAIN: ${WEBSITE_DOMAIN:?Set WEBSITE_DOMAIN; preserve the existing domain when migrating}
+      SEO_ENABLED: ${SEO_ENABLED:-false}
+      SEO_SITE_URL: ${SEO_SITE_URL:-}
+      SEO_SITEMAP_WORKER_ENABLED: ${SEO_SITEMAP_WORKER_ENABLED:-true}
+      SEO_WORKER_DELAY_MS: ${SEO_WORKER_DELAY_MS:-1000}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-disabled}
+    volumes:
+      - type: bind
+        source: ./config
+        target: /app/config
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${READER_RESOURCE_HOST_DIR:-./reader-resources}
+        target: /opt/reader-resources
+        read_only: true
+        bind: {create_host_path: false}
+      - pic-data:/data/pic
+      - books-data:/data/books
+      - seo-data:/data/seo
+
+  admin:
+    <<: *app
+    image: ${APP_IMAGE_PREFIX:-novel-plus}/admin:${APP_IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: admin
+        APP_UID: ${APP_UID:-10001}
+        APP_GID: ${APP_GID:-10001}
+        JAVA_BASE_IMAGE: ${JAVA_BASE_IMAGE:-eclipse-temurin:21-jre-jammy}
+    ports: ["127.0.0.1:${ADMIN_PORT:-8088}:8080"]
+    environment:
+      <<: *app-environment
+      APP_MODULE: admin
+      ADMIN_SECURITY_SECURE_COOKIE: ${ADMIN_SECURITY_SECURE_COOKIE:-true}
+      SEO_ENABLED: ${SEO_ENABLED:-false}
+      SEO_SITE_URL: ${SEO_SITE_URL:-}
+
+  crawl:
+    <<: *app
+    profiles: [crawl]
+    image: ${APP_IMAGE_PREFIX:-novel-plus}/crawl:${APP_IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: crawl
+        APP_UID: ${APP_UID:-10001}
+        APP_GID: ${APP_GID:-10001}
+        JAVA_BASE_IMAGE: ${JAVA_BASE_IMAGE:-eclipse-temurin:21-jre-jammy}
+    ports: ["127.0.0.1:${CRAWL_PORT:-8081}:8080"]
+    environment:
+      <<: *app-environment
+      APP_MODULE: crawl
+      CRAWL_ADMIN_USERNAME: ${CRAWL_ADMIN_USERNAME:-admin}
+      CRAWL_ADMIN_PASSWORD: ${CRAWL_ADMIN_PASSWORD:?Set the crawl console password, even while its profile is disabled}
+      CRAWL_JOBS_ENABLED: ${CRAWL_JOBS_ENABLED:-false}
+      CRAWL_UPDATE_THREAD: ${CRAWL_UPDATE_THREAD:-0}
+      DISK_MONITOR_ENABLED: "false"
+
+  db-init:
+    profiles: [db-init]
+    image: ${MYSQL_IMAGE:-mysql:8.0.46}
+    user: mysql
+    restart: "no"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    entrypoint: [/bin/sh, /tools/entrypoint.sh, init-db]
+    environment:
+      MYSQL_HOST: ${MYSQL_HOST:-mysql}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-novel_plus}
+      MYSQL_USERNAME: ${MYSQL_USERNAME:-novel}
+      MYSQL_PWD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
+      DB_INIT_ACK: ${DB_INIT_ACK:-}
+      DB_INIT_SQL: ${DB_INIT_SQL:-}
+      DB_INIT_SQL_SHA256: ${DB_INIT_SQL_SHA256:-}
+      # Initial admin password is used ONLY when importing a verified empty schema.
+      ADMIN_INITIAL_PASSWORD: ${ADMIN_INITIAL_PASSWORD:-}
+      WEBSITE_NAME: ${WEBSITE_NAME:-小说精品屋}
+      WEBSITE_DOMAIN: ${WEBSITE_DOMAIN:?Set WEBSITE_DOMAIN for fresh website initialization}
+    volumes:
+      - type: bind
+        source: ./entrypoint.sh
+        target: /tools/entrypoint.sh
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./sql
+        target: /sql
+        read_only: true
+        bind: {create_host_path: false}
+    tmpfs: ["/tmp:rw,nosuid,noexec,size=16m,mode=1777"]
+    depends_on:
+      mysql: {condition: service_healthy}
+
+volumes:
+  mysql-data:
+    name: ${MYSQL_VOLUME_NAME:-${COMPOSE_PROJECT_NAME}_mysql-data}
+  redis-data:
+    name: ${REDIS_VOLUME_NAME:-${COMPOSE_PROJECT_NAME}_redis-data}
+  pic-data:
+    name: ${PIC_VOLUME_NAME:-${COMPOSE_PROJECT_NAME}_pic-data}
+  books-data:
+    name: ${BOOKS_VOLUME_NAME:-${COMPOSE_PROJECT_NAME}_books-data}
+  seo-data:
+    name: ${SEO_VOLUME_NAME:-${COMPOSE_PROJECT_NAME}_seo-data}

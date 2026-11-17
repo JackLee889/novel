@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="page">
+<head th:replace="~{common/site :: head('全部目录','全部目录，发现好故事，享受阅读。')}"></head>
+<body data-page="chapters" >
+<th:block th:replace="~{common/site :: header('books')}"></th:block>
+<main id="main" class="container page-main"><nav class="breadcrumb" aria-label="当前位置"><a href="/">首页</a><span>/</span><a th:href="'/book/'+${book.id}+'.html'" th:text="${book.bookName}"></a><span>/</span><span>全部目录</span></nav><div class="chapter-summary"><div><span class="eyebrow" th:text="${book.authorName}+' 著'"></span><h1 th:text="${book.bookName}"></h1><p class="section-intro">全部目录 · <span th:text="${bookIndexCount}"></span> 章</p></div><div class="chapter-tools"><label for="chapter-search" class="sr-only">搜索章节名</label><input id="chapter-search" type="search" placeholder="搜索本页章节名"><button id="chapter-sort" class="button" aria-pressed="false">倒序排列</button></div></div><p id="chapter-match" class="muted" role="status" aria-live="polite"></p><div class="chapter-list" id="chapter-list"><a th:each="chapter:${bookIndexList}" th:href="'/book/'+${book.id}+'/'+${chapter.id}+'.html'" th:attr="data-name=${chapter.indexName}"><span th:text="${chapter.indexName}"></span><span class="vip-mark" th:if="${chapter.isVip==1}">VIP</span></a></div><div id="chapter-empty" class="state-panel" th:hidden="${bookIndexCount > 0}"><h3>还没有章节</h3><p>故事正在准备中，稍后再来看看。</p></div><p class="muted" th:text="'第 '+${currentPage}+' 页 / 共 '+${totalPages}+' 页 · 每页最多 200 章'"></p><th:block th:replace="~{common/site :: pagination}"></th:block></main>
+<th:block th:replace="~{common/site :: footer}"></th:block>
+</body></html>

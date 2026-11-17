@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:replace="~{include :: header}"></head>
+<body class="gray-bg">
+<main class="wrapper wrapper-content" id="seo-admin">
+    <h1 class="h3">SEO 管理</h1>
+    <p>索引设置不会改变书籍上架状态。站点地图由后台队列生成，收费与非公开内容继续按原权限处理。</p>
+    <div id="seo-message" role="status" aria-live="polite" class="alert d-none"></div>
+    <section class="ibox" id="seo-config" shiro:hasPermission="seo:config:view">
+        <div class="ibox-title"><h2 class="h4">站点设置</h2></div>
+        <div class="ibox-content">
+            <p>公开站点地址：<strong id="site-url"></strong>（由部署配置管理）</p>
+            <p id="site-url-warning" class="text-warning"></p>
+            <form id="config-form">
+                <input name="expectedEpoch" type="hidden"/>
+                <div class="mb-3"><label><input name="indexEnabled" type="checkbox"/> 开启整站索引</label></div>
+                <div class="mb-3"><label><input name="chaptersIndexEnabled" type="checkbox"/> 允许公开免费章节索引</label></div>
+                <div class="mb-3"><label><input name="chapterSitemapEnabled" type="checkbox"/> 将符合条件的章节加入站点地图</label></div>
+                <p class="text-muted">章节地图需同时开启三个开关。索引许可仍受书籍上架、单书覆盖及章节内容条件限制。</p>
+                <div class="mb-3"><label for="default-title">首页标题</label><input id="default-title" name="defaultTitle" maxlength="160" class="form-control"/></div>
+                <div class="mb-3"><label for="default-description">默认摘要</label><textarea id="default-description" name="defaultDescription" maxlength="500" class="form-control" rows="3"></textarea></div>
+                <div class="mb-3"><label for="site-keywords">关键词</label><input id="site-keywords" name="keywords" maxlength="300" class="form-control"/></div>
+                <div class="mb-3"><label for="baidu-verification">百度验证 token</label><input id="baidu-verification" name="baiduVerification" maxlength="200" class="form-control"/></div>
+                <div class="mb-3"><label for="google-verification">Google 验证 token</label><input id="google-verification" name="googleVerification" maxlength="200" class="form-control"/></div>
+                <button type="submit" class="btn btn-primary" shiro:hasPermission="seo:config:edit">保存站点设置</button>
+                <span class="text-muted" id="config-version"></span>
+            </form>
+        </div>
+    </section>
+    <section class="ibox" id="seo-books" shiro:hasPermission="seo:book:view">
+        <div class="ibox-title"><h2 class="h4">书籍 SEO 与预览</h2></div>
+        <div class="ibox-content">
+            <form id="book-search" class="d-flex gap-2 mb-3"><label class="visually-hidden" for="query">书名或ID</label><input id="query" name="query" maxlength="100" placeholder="按书名或ID查找" class="form-control"/><button class="btn btn-default text-nowrap flex-shrink-0" type="submit">查找</button></form>
+            <div class="table-responsive"><table class="table table-striped"><thead><tr><th>书籍</th><th>作者</th><th>业务状态</th><th>SEO版本</th><th>操作</th></tr></thead><tbody id="book-rows"></tbody></table></div>
+            <div class="mb-3"><button type="button" class="btn btn-default" id="books-prev">上一页</button> <button type="button" class="btn btn-default" id="books-next">下一页</button></div>
+            <div id="book-panel" hidden>
+                <h3 class="h5" id="selected-book"></h3>
+                <p id="index-reason"></p><p id="book-canonical"></p>
+                <form id="book-form">
+                    <input name="expectedRevision" type="hidden"/>
+                    <div class="mb-3"><label for="index-mode">单书索引</label><select id="index-mode" name="indexMode" class="form-control"><option value="INHERIT">继承整站配置</option><option value="ALLOW">允许（仍需上架）</option><option value="DENY">禁止</option></select></div>
+                    <div class="mb-3"><label for="book-title">标题覆盖（留空使用书名与作者）</label><input id="book-title" name="title" maxlength="160" class="form-control"/></div>
+                    <div class="mb-3"><label for="book-description">摘要覆盖</label><textarea id="book-description" name="description" maxlength="500" class="form-control" rows="3"></textarea></div>
+                    <div class="mb-3"><label for="book-keywords">关键词覆盖</label><input id="book-keywords" name="keywords" maxlength="300" class="form-control"/></div>
+                    <button type="submit" class="btn btn-primary" shiro:hasPermission="seo:book:edit">保存单书覆盖</button>
+                    <button type="button" id="book-rebuild" class="btn btn-default" shiro:hasPermission="seo:sitemap:rebuild">将该书重建入队</button>
+                </form>
+                <h4 class="h6 mt-3">生效预览与生成状态</h4>
+                <dl><dt>生效标题</dt><dd id="effective-title"></dd><dt>生效摘要</dt><dd id="effective-description"></dd><dt>生效关键词</dt><dd id="effective-keywords"></dd><dt>抓取标记</dt><dd id="effective-robots"></dd></dl>
+                <pre id="book-preview" class="bg-light p-3" style="max-height:24rem;overflow:auto"></pre>
+            </div>
+        </div>
+    </section>
+    <section class="ibox" id="seo-sitemaps" shiro:hasPermission="seo:sitemap:view">
+        <div class="ibox-title"><h2 class="h4">站点地图与队列</h2></div>
+        <div class="ibox-content">
+            <button type="button" id="refresh-jobs" class="btn btn-default">刷新生成状态</button>
+            <button type="button" id="rebuild-all" class="btn btn-primary" shiro:hasPermission="seo:sitemap:rebuild">全站重建入队</button>
+            <p class="mt-2">显示URL数量、版本、积压和失败原因；入队完成不代表地图已生成。</p>
+            <p id="queue-summary" class="text-muted"></p>
+            <p id="core-task-summary" class="text-muted"></p>
+            <div class="table-responsive" style="max-height:20rem;overflow:auto"><table class="table table-striped"><caption>最近单书生成任务</caption><thead><tr><th>书籍 ID</th><th>状态</th><th>开始</th><th>完成</th><th>耗时</th><th>URL 数</th><th>失败原因</th></tr></thead><tbody id="sitemap-job-rows"></tbody></table></div>
+            <pre id="sitemap-state" class="bg-light p-3" style="max-height:24rem;overflow:auto"></pre>
+        </div>
+    </section>
+    <section class="ibox" id="seo-diagnosis" shiro:hasPermission="seo:diagnosis:view">
+        <div class="ibox-title"><h2 class="h4">SEO 诊断</h2></div>
+        <div class="ibox-content">
+            <h3 class="h5">HTTP 请求与爬虫声明概览</h3>
+            <p class="text-muted">最近 168 个 UTC 小时（含当前小时）。统计前台 HTTP 请求，包含静态资源、HEAD 和探测；爬虫仅按 UA 声明分类，未经身份验证，不代表收录量或独立访客。每 30 秒批量同步，历史聚合保留。</p>
+            <button type="button" id="refresh-http" class="btn btn-default">刷新请求统计</button>
+            <p id="http-stats-status" class="mt-2" role="status" aria-live="polite"></p>
+            <dl class="row"><div class="col-sm-3"><dt>HTTP 请求</dt><dd id="http-requests">—</dd></div><div class="col-sm-3"><dt>404</dt><dd id="http-not-found">—</dd></div><div class="col-sm-3"><dt>5xx</dt><dd id="http-server-errors">—</dd></div><div class="col-sm-3"><dt>终态未确认的异常</dt><dd id="http-unresolved">—</dd></div></dl>
+            <div class="table-responsive"><table class="table table-striped"><caption>UA 声明类型（未经身份验证）</caption><thead><tr><th>声明类型</th><th>HTTP 请求</th><th>404</th><th>5xx</th></tr></thead><tbody id="http-client-rows"></tbody></table></div>
+            <p id="http-outage-summary" class="text-warning"></p>
+            <details><summary>按 UTC 小时查看请求与错误</summary><div class="table-responsive" style="max-height:20rem;overflow:auto"><table class="table table-striped"><thead><tr><th>UTC 小时</th><th>HTTP 请求</th><th>404</th><th>5xx</th><th>终态未确认异常</th></tr></thead><tbody id="http-hour-rows"></tbody></table></div></details>
+            <hr/>
+            <p>检查已配置站点的单个规范页面。只接受本库书籍与章节ID，不接受外部URL；不扫描全部章节。</p>
+            <form id="diagnosis-form">
+                <div class="mb-3"><label for="page-type">页面类型</label><select id="page-type" name="pageType" class="form-control"><option value="home">首页</option><option value="category">作品分类</option><option value="ranking">排行榜</option><option value="book">书籍详情</option><option value="catalog">目录第一页</option><option value="chapter">章节</option></select></div>
+                <div class="mb-3"><label for="diagnosis-book">书籍ID</label><input id="diagnosis-book" name="bookId" inputmode="numeric" class="form-control"/></div>
+                <div class="mb-3"><label for="diagnosis-chapter">章节ID（章节诊断必填）</label><input id="diagnosis-chapter" name="chapterId" inputmode="numeric" class="form-control"/></div>
+                <button type="submit" class="btn btn-primary" shiro:hasPermission="seo:diagnosis:run">执行页面诊断</button>
+            </form>
+            <pre id="diagnosis-result" class="bg-light p-3" style="max-height:24rem;overflow:auto"></pre>
+        </div>
+    </section>
+</main>
+<div th:replace="~{include :: footer}"></div>
+<script src="/js/appjs/novel/seo/manage.js"></script>
+</body>
+</html>

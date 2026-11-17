@@ -1,0 +1,20 @@
+# Compose >= 2.24.4. Use AFTER compose.yaml; MYSQL_HOST must be an external
+# hostname reachable from the container, never localhost/127.0.0.1.
+# Local MySQL is inactive; only dependencies on Redis and data setup remain.
+services:
+  mysql:
+    profiles: [local-db]
+  front:
+    depends_on: !override
+      redis: {condition: service_healthy}
+      init-data: {condition: service_completed_successfully}
+  admin:
+    depends_on: !override
+      redis: {condition: service_healthy}
+      init-data: {condition: service_completed_successfully}
+  crawl:
+    depends_on: !override
+      redis: {condition: service_healthy}
+      init-data: {condition: service_completed_successfully}
+  db-init:
+    profiles: [local-db-init]

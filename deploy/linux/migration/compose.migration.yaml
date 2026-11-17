@@ -1,0 +1,37 @@
+# First compose file MUST be application/compose.yaml, from the migration root.
+# All relative binds resolve against that first file's application/ directory.
+services:
+  migration-import:
+    profiles: [migration]
+    image: ${MYSQL_IMAGE:-mysql:8.0.46}
+    user: mysql
+    restart: "no"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    entrypoint: [/bin/bash, /migration-tools/import.sh]
+    environment:
+      MYSQL_HOST: ${MYSQL_HOST:-mysql}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-novel_plus}
+      MYSQL_USERNAME: ${MYSQL_USERNAME:-novel}
+      MYSQL_PWD: ${MYSQL_PASSWORD:?Set the NEW target database password}
+      DATA_MIGRATION_ACK: ${DATA_MIGRATION_ACK:-}
+      MIGRATION_DATA_SHA256: ${MIGRATION_DATA_SHA256:-}
+      ADMIN_INITIAL_PASSWORD: ${ADMIN_INITIAL_PASSWORD:-}
+      WEBSITE_NAME: ${WEBSITE_NAME:-小说精品屋}
+      WEBSITE_DOMAIN: ${WEBSITE_DOMAIN:?Set WEBSITE_DOMAIN}
+    volumes:
+      - type: bind
+        source: ../migration
+        target: /migration-tools
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ../data
+        target: /migration-data
+        read_only: true
+        bind: {create_host_path: false}
+    tmpfs: ["/tmp:rw,nosuid,noexec,size=16m,mode=1777"]
+    depends_on:
+      mysql: {condition: service_healthy}

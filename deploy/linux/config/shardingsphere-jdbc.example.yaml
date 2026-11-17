@@ -1,0 +1,33 @@
+# Example only. Copy to shardingsphere-jdbc.yml and retain your existing
+# topology, data sources and credentials verbatim. Grant APP_UID read access:
+# owner=APP_UID with mode 600, or group=APP_GID with mode 640. Never world-readable.
+# The mounted config must point to container-reachable DB hosts.
+mode:
+  type: Standalone
+  repository:
+    type: JDBC
+dataSources:
+  ds_1:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://mysql:3306/novel_plus?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    username: __REQUIRED_DATABASE_USERNAME__
+    password: __REQUIRED_DATABASE_PASSWORD__
+rules:
+  - !SINGLE
+    tables: ["*.*"]
+  - !SHARDING
+    tables:
+      book_content:
+        actualDataNodes: ds_1.book_content${0..9}
+        tableStrategy:
+          standard:
+            shardingColumn: index_id
+            shardingAlgorithmName: bookContentSharding
+    shardingAlgorithms:
+      bookContentSharding:
+        type: INLINE
+        props:
+          algorithm-expression: book_content${index_id % 10}
+props:
+  sql-show: false

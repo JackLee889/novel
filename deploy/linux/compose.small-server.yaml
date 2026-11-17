@@ -1,0 +1,46 @@
+# Starting limits for a 2 GiB server. Validate RSS and swap under your workload.
+# Keep crawl profile stopped; its jobs remain disabled even when explicitly run.
+services:
+  mysql:
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --innodb-buffer-pool-size=128M
+      - --innodb-log-buffer-size=32M
+      - --innodb-redo-log-capacity=512M
+      - --performance-schema=OFF
+      - --max-connections=40
+      - --table-open-cache=512
+      - --tmp-table-size=16M
+      - --max-heap-table-size=16M
+      - --skip-log-bin
+      - --event-scheduler=OFF
+    mem_limit: 500m
+    memswap_limit: 768m
+  redis:
+    command: [/bin/sh, -ec, 'exec redis-server --appendonly yes --maxmemory 48mb --maxmemory-policy allkeys-lru --requirepass "$$REDIS_PASSWORD"']
+    mem_limit: 96m
+    memswap_limit: 128m
+  front:
+    mem_limit: 700m
+    memswap_limit: 1024m
+    environment:
+      JAVA_TOOL_OPTIONS: '-Xms64m -Xmx320m -XX:MaxMetaspaceSize=128m -XX:MaxDirectMemorySize=64m -Xss512k -Dfile.encoding=UTF-8'
+      SERVER_TOMCAT_THREADS_MAX: "80"
+      SERVER_TOMCAT_THREADS_MIN_SPARE: "5"
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "6"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "1"
+  admin:
+    mem_limit: 450m
+    memswap_limit: 768m
+    environment:
+      JAVA_TOOL_OPTIONS: '-Xms32m -Xmx160m -XX:MaxMetaspaceSize=128m -XX:MaxDirectMemorySize=32m -Xss512k -Dfile.encoding=UTF-8'
+      SERVER_TOMCAT_THREADS_MAX: "40"
+      SERVER_TOMCAT_THREADS_MIN_SPARE: "3"
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "4"
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "1"
+  crawl:
+    mem_limit: 450m
+    memswap_limit: 768m
+    environment:
+      JAVA_TOOL_OPTIONS: '-Xms32m -Xmx160m -XX:MaxMetaspaceSize=128m -Xss512k -Dfile.encoding=UTF-8'

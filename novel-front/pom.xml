@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>novel</artifactId>
+        <groupId>com.java2nb</groupId>
+        <version>5.3.3</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>novel-front</artifactId>
+
+    <name>novel-front</name>
+    <description>小说精品屋 前台</description>
+
+    <properties>
+        <package.orange.theme>false</package.orange.theme>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.java2nb</groupId>
+            <artifactId>novel-common</artifactId>
+        </dependency>
+
+        <!-- ShardingSphere JDBC 5.5.3 publishes these runtime SPI providers separately.
+             Keep the front's existing Standalone/JDBC, MySQL and INLINE shard configuration usable. -->
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-standalone-mode-core</artifactId>
+            <version>${shardingsphere-jdbc.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-standalone-mode-repository-jdbc</artifactId>
+            <version>${shardingsphere-jdbc.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-parser-sql-engine-mysql</artifactId>
+            <version>${shardingsphere-jdbc.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-sharding-core</artifactId>
+            <version>${shardingsphere-jdbc.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-infra-data-source-pool-hikari</artifactId>
+            <version>${shardingsphere-jdbc.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-authority-simple</artifactId>
+            <version>${shardingsphere-jdbc.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml.version}</version>
+        </dependency>
+
+        <!--JWT(Json Web Token)登录支持-->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+
+        <!--aliyunOSS-->
+        <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>${aliyun-sdk-oss.version}</version>
+        </dependency>
+        
+
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>${alipay-sdk-java.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <!-- AI -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.lionsoul</groupId>
+            <artifactId>ip2region</artifactId>
+            <version>3.3.7</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+</dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>stage-front-themes</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target xmlns:if="ant:if">
+                                <property name="stage.expected.build.directory" location="${basedir}/target"/>
+                                <property name="stage.actual.build.directory" location="${project.build.directory}"/>
+                                <condition property="stage.build.directory.valid">
+                                    <equals arg1="${stage.actual.build.directory}"
+                                            arg2="${stage.expected.build.directory}"/>
+                                </condition>
+                                <fail unless="stage.build.directory.valid"
+                                      message="Theme staging requires the module target directory."/>
+                                <delete dir="${stage.actual.build.directory}/build/templates"/>
+                                <!-- Green is generated from the authoritative application resources. -->
+                                <copy todir="${project.build.directory}/build/templates/green/html" overwrite="true">
+                                    <fileset dir="${basedir}/src/main/resources/templates">
+                                        <include name="**/*.*"/>
+                                    </fileset>
+                                </copy>
+                                <copy todir="${project.build.directory}/build/templates/green/static" overwrite="true">
+                                    <fileset dir="${basedir}/src/main/resources/static">
+                                        <include name="**/*.*"/>
+                                        <include name="**/LICENSE"/>
+                                    </fileset>
+                                </copy>
+                                <!-- Opt in with -Porange-theme; keep the legacy theme in its own tree. -->
+                                <copy todir="${project.build.directory}/build/templates/orange" overwrite="true"
+                                      if:true="${package.orange.theme}">
+                                    <fileset dir="${basedir}/../templates/orange">
+                                        <include name="**/*.*"/>
+                                        <include name="**/LICENSE"/>
+                                        <exclude name="**/.*"/>
+                                    </fileset>
+                                </copy>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>orange-theme</id>
+            <properties>
+                <package.orange.theme>true</package.orange.theme>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

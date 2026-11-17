@@ -1,0 +1,15 @@
+# Use AFTER compose.yaml and (when needed) compose.external-db.yaml.
+# Copy config/shardingsphere-jdbc.example.yaml to your private
+# config/shardingsphere-jdbc.yml and preserve existing shard topology.
+# config/ is already mounted read-only; no existing configuration is rewritten.
+x-sharding-environment: &sharding-environment
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.apache.shardingsphere.driver.ShardingSphereDriver
+  SPRING_DATASOURCE_URL: jdbc:shardingsphere:absolutepath:/app/config/shardingsphere-jdbc.yml
+
+services:
+  front:
+    environment: *sharding-environment
+  admin:
+    environment: *sharding-environment
+  crawl:
+    environment: *sharding-environment

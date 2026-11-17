@@ -1,0 +1,23 @@
+.runtime-intro { margin: 12px 0 18px; color: #707a76; line-height: 1.8; font-size: 12px; }
+.runtime-intro strong { color: #345246; font-size: 13px; }
+#runtimeRefresh { float: right; font-variant-numeric: tabular-nums; }
+.runtime-row td { padding: 10px 12px 14px !important; text-align: left !important; border-bottom: 1px solid #e7eee9; background: #f8fbf9; }
+.runtime-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; font-size: 12px; line-height: 1.8; color: #68766e; }
+.runtime-line strong { color: #334f40; font-variant-numeric: tabular-nums; }
+.runtime-state { display: inline-block; border-radius: 3px; padding: 1px 7px; white-space: nowrap; }
+.runtime-state-active { color: #23754d; background: #e4f3e9; }
+.runtime-state-muted { color: #69766f; background: #edf0ee; }
+.runtime-state-warning { color: #976216; background: #fff0d7; }
+.runtime-warning { color: #98661f !important; font-size: 12px; line-height: 1.8; }
+.runtime-details { margin-top: 5px; font-size: 12px; color: #637269; }
+.runtime-details summary { cursor: pointer; line-height: 1.8; }
+.runtime-detail-content { max-height: 300px; overflow: auto; padding: 4px 0; }
+.runtime-task { margin: 6px 0; padding: 8px 10px; background: #fff; border: 1px solid #e4ebe6; line-height: 1.8; overflow-wrap: anywhere; }
+.runtime-task strong { color: #344b3e; font-weight: 500; }
+.runtime-kind { color: #3a8660; }
+.runtime-task-progress { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-variant-numeric: tabular-nums; }
+.runtime-task progress { height: 7px; width: 110px; accent-color: #3ca77b; }
+.runtime-dim { color: #849188; }
+.runtime-errors { color: #946739; line-height: 1.9; margin: 10px 0; overflow-wrap: anywhere; }
+.runtime-intro::after { display: block; clear: both; content: ''; }
+@media (max-width: 700px) { #runtimeRefresh { float: none; display: block; } .runtime-line { gap: 4px 12px; } }

@@ -1,0 +1,5 @@
+# Build from the generated release directory, not the development workspace.
+**
+!deploy/
+!deploy/linux/
+!deploy/linux/**

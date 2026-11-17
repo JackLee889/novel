@@ -1,0 +1,72 @@
+/* Bootstrap 5 layout with the existing H+ admin theme and retained plugins. */
+:root {
+    --bs-body-font-size: 13px;
+    --bs-body-line-height: 1.42857143;
+    --bs-link-color: #337ab7;
+    --bs-link-hover-color: #23527c;
+    --bs-border-radius: 4px;
+}
+body { font-size: var(--bs-body-font-size); }
+a { text-decoration: none; }
+.btn, .form-control, .form-select, .input-group-text { font-size: 14px; }
+.btn-sm { font-size: 12px; padding: 2px 6px; }
+.btn-lg { font-size: 18px; }
+.btn-outline-secondary {
+    --bs-btn-color: #676a6c;
+    --bs-btn-bg: #fff;
+    --bs-btn-border-color: #e7eaec;
+    --bs-btn-hover-color: #676a6c;
+    --bs-btn-hover-bg: #e6e6e6;
+    --bs-btn-hover-border-color: #d2d2d2;
+    --bs-btn-active-color: #676a6c;
+    --bs-btn-active-bg: #d4d4d4;
+}
+.row { --bs-gutter-x: 30px; }
+.novel-form-horizontal .col-form-label { font-weight: 700; }
+@media (min-width: 576px) {
+    .novel-form-horizontal .col-form-label { text-align: right; }
+}
+select.form-control { appearance: auto; }
+.form-control { min-height: 34px; }
+textarea.form-control { min-height: 80px; }
+.radio-inline, .checkbox-inline { display: inline-flex; align-items: center; gap: 5px; margin-right: 12px; }
+.radio-inline input, .checkbox-inline input { margin: 0; }
+.help-block { display: block; margin-top: 5px; color: #737373; }
+.hidden { display: none !important; } /* retained vendor permission/selection markup */
+
+/* H+ owns the sidebar and tab bar positioning; Bootstrap supplies collapse. */
+#side-menu, #side-menu .nav { display: block; }
+#side-menu .nav.collapse:not(.show) { display: none; }
+#side-menu .nav { padding-left: 0; }
+.navbar-static-top, .navbar-fixed-top { min-height: 60px; padding: 0; display: flex; }
+.navbar-header { flex: 0 0 auto; }
+.navbar-top-links { display: flex; margin-left: auto; align-items: center; }
+.navbar-top-links > li { margin: 0; }
+.content-tabs.row { display: block; }
+.dropdown-menu > li > a { display: block; cursor: pointer; }
+.dropdown-menu .divider { height: 1px; margin: 9px 0; overflow: hidden; background: #e5e5e5; }
+.dropdown-toggle > .caret { display: none; }
+.roll-nav .dropdown-menu { min-width: 150px; }
+.nav-tabs .nav-link { color: #676a6c; font-weight: 600; }
+.nav-tabs .nav-link.active { color: #555; background: #fff; }
+
+/* Bootstrap Table 1.9 / paginator emit legacy markup; JS adds v5 classes. */
+.fixed-table-toolbar .btn { min-height: 34px; }
+.fixed-table-toolbar .dropdown-menu label { display: block; padding: 3px 12px; white-space: nowrap; }
+.fixed-table-toolbar .dropdown-menu label input { margin-right: 6px; }
+.fixed-table-pagination .pagination { margin: 10px 0; }
+.fixed-table-pagination .page-link { font-size: 13px; padding: 6px 12px; }
+.pagination .page-item.active .page-link { color: #fff; background: #1ab394; border-color: #1ab394; }
+.pagination .page-item.disabled .page-link { pointer-events: none; opacity: .65; }
+.table > :not(caption) > * > * { color: inherit; background: transparent; box-shadow: none; }
+.table-striped > tbody > tr:nth-of-type(odd) > * { background: #f9f9f9; }
+
+/* Summernote 0.8.8 retains these wrapper classes while using v5 modal APIs. */
+.note-editor .panel-heading { padding: 6px; background: #f5f5f5; border-bottom: 1px solid #ddd; }
+.note-editor .panel-body { padding: 10px; }
+.note-editor .panel { border: 1px solid #ddd; }
+.note-popover { position: absolute; z-index: 1060; }
+.note-popover .popover-content { padding: 6px; background: #fff; border: 1px solid #ddd; border-radius: 4px; }
+.note-popover .arrow { display: none; }
+.note-dialog .modal-header { align-items: center; }
+.note-dialog .modal-header .btn-close { order: 2; margin-left: auto; }

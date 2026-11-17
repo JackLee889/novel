@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="page">
+<head th:replace="~{common/site :: head('稿费收入','稿费收入，发现好故事，享受阅读。')}"></head>
+<body data-page="income-month" data-requires-login>
+<th:block th:replace="~{common/site :: header('author')}"></th:block>
+<main id="main" class="container page-main"><div class="account-layout"><nav th:replace="~{common/site :: authorNav('author_income')}"></nav><section class="account-content"><div class="author-topline"><h1>稿费收入</h1></div><div class="table-wrap"><table class="update-list"><thead><tr><th scope="col">结算月份</th><th scope="col">税前收入（元）</th><th scope="col">税后收入（元）</th><th scope="col">支付状态</th></tr></thead><tbody id="income-results"><tr><td colspan="4">正在加载…</td></tr></tbody></table></div><nav id="pagination" class="pagination" aria-label="分页"></nav></section></div></main>
+<th:block th:replace="~{common/site :: footer}"></th:block>
+</body></html>

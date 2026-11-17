@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "date": "2026-11-17",
+  "source_of_truth": "server deployed code",
+  "database_included": false,
+  "maven_package": "passed",
+  "applications": {
+    "front": {
+      "effective_classes": 287,
+      "raw_byte_equal": 279,
+      "additional_canonical_equal": 8,
+      "canonical_differences": 0,
+      "extra_or_missing_classes": 0,
+      "third_party_libraries_exact_match": 301,
+      "canonical_reviewed_paths": [
+        "com/java2nb/novel/seo/SeoRepository$BootstrapBatch.class",
+        "com/java2nb/novel/seo/SeoRepository$BootstrapBook.class",
+        "com/java2nb/novel/seo/SeoRepository$ChapterRow.class",
+        "com/java2nb/novel/seo/SeoRepository$CoreTicket.class",
+        "com/java2nb/novel/seo/SeoRepository$Observation.class",
+        "com/java2nb/novel/seo/SeoRepository$SnapshotFiles.class",
+        "com/java2nb/novel/seo/SeoRepository$Ticket.class",
+        "com/java2nb/novel/seo/SeoRepository.class"
+      ]
+    },
+    "crawl": {
+      "effective_classes": 221,
+      "raw_byte_equal": 216,
+      "additional_canonical_equal": 5,
+      "canonical_differences": 0,
+      "extra_or_missing_classes": 0,
+      "third_party_libraries_exact_match": 206,
+      "canonical_reviewed_paths": [
+        "com/java2nb/novel/seo/SeoRepository$ChapterRow.class",
+        "com/java2nb/novel/seo/SeoRepository$CoreTicket.class",
+        "com/java2nb/novel/seo/SeoRepository$Observation.class",
+        "com/java2nb/novel/seo/SeoRepository$Ticket.class",
+        "com/java2nb/novel/seo/SeoRepository.class"
+      ]
+    },
+    "admin": {
+      "effective_classes": 347,
+      "raw_byte_equal": 347,
+      "additional_canonical_equal": 0,
+      "canonical_differences": 0,
+      "extra_or_missing_classes": 0,
+      "third_party_libraries_exact_match": 220,
+      "canonical_reviewed_paths": []
+    }
+  },
+  "frontend_templates_and_static_files": {
+    "matched": 701,
+    "differences": 0
+  },
+  "sql_seed_statements_omitted": 1848,
+  "sensitive_files": "Private generator settings, legacy build credentials, environment files, key files, data archives and historical snapshots excluded from Git."
+}

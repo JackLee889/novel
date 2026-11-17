@@ -1,0 +1,37 @@
+{
+  "engineVersion": "1.13.8",
+  "modelId": "matcha-icefall-zh-en",
+  "speakerId": 0,
+  "normalizationVersion": "reader-text-v1",
+  "baseUrl": "/reader/tts/1.13.8-matcha-icefall-zh-en/",
+  "requiresIsolation": false,
+  "archiveSha256": "bf891447a28294e43b3925e35d52fec550bd7ff1dfa051fb3026da44655e22d6",
+  "source": "https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.8/sherpa-onnx-wasm-simd-1.13.8-matcha-icefall-zh-en.tar.bz2",
+  "totalBytes": 163103220.0,
+  "assets": [
+    {
+      "name": "sherpa-onnx-tts.js",
+      "url": "/reader/tts/1.13.8-matcha-icefall-zh-en/sherpa-onnx-tts.js",
+      "bytes": 33771,
+      "sha256": "a606b80e6ad9dca5d43f3d33c8375c15ac46505647b1c791e91840c6398c1ba8"
+    },
+    {
+      "name": "sherpa-onnx-wasm-main-tts.js",
+      "url": "/reader/tts/1.13.8-matcha-icefall-zh-en/sherpa-onnx-wasm-main-tts.js",
+      "bytes": 110211,
+      "sha256": "93723f39995b567678d63a47f1b8e79e3439126d210336643a5d54ee136c79ea"
+    },
+    {
+      "name": "sherpa-onnx-wasm-main-tts.wasm",
+      "url": "/reader/tts/1.13.8-matcha-icefall-zh-en/sherpa-onnx-wasm-main-tts.wasm",
+      "bytes": 13731219,
+      "sha256": "c9aeda400adf86d40929c7402a690b87768e4c9c39dc5b0afaa8f4accc6110a6"
+    },
+    {
+      "name": "sherpa-onnx-wasm-main-tts.data",
+      "url": "/reader/tts/1.13.8-matcha-icefall-zh-en/sherpa-onnx-wasm-main-tts.data",
+      "bytes": 149228019,
+      "sha256": "3a00cfc82ddf39a2e798e63fad038e2c56f10aa4b7b952a0c98db758d119c14c"
+    }
+  ]
+}

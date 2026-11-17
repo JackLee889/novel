@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="page">
+<head th:replace="~{common/site :: head('提交小说','提交小说，发现好故事，享受阅读。')}"></head>
+<body data-page="book-submit" >
+<th:block th:replace="~{common/site :: header('books')}"></th:block>
+<main id="main" class="container page-main"><div class="page-title"><div><span class="eyebrow" th:text="${application.website.name}+' · 阅读与生活'">阅读与生活</span><h1>提交一本小说</h1><p>提供作品信息，提交后以后台实际处理结果为准。</p></div></div><form method="post" id="book-submit-form" class="form-panel"><div class="field"><label for="bookUrl">详情页 URL</label><input id="bookUrl" name="bookUrl" type="url" required></div><div class="field"><label for="bookName">小说名称</label><input id="bookName" name="bookName" type="text" required></div><div class="field"><label for="score">小说评分</label><input id="score" name="score" type="number" required min="0" max="10" step="0.1"></div><p id="LabErr" class="form-status" role="status" aria-live="polite"></p><div class="button-row"><button class="button button-primary" id="btnSave" type="submit">提交</button><button class="button" type="reset">重置</button></div></form></main>
+<th:block th:replace="~{common/site :: footer}"></th:block>
+</body></html>

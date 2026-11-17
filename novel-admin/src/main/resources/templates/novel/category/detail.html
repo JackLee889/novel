@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <script th:src="@{/js/csrf.js}" src="/js/csrf.js" defer></script>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+            <div class="ibox-content">
+            <form class="novel-form-horizontal m-t" id="signupForm">
+                <input id="id" name="id" th:value="${category.id}"
+                       type="hidden">
+                                                                                            <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">分类名：</label>
+
+                                                    <div style="padding-top:8px" class="col-sm-8"
+                                 th:text="${category.name}">
+                            </div>
+                        
+                        
+
+                    </div>
+                                                                            <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">排序：</label>
+
+                                                    <div style="padding-top:8px" class="col-sm-8"
+                                 th:text="${category.sort}">
+                            </div>
+                        
+                        
+
+                    </div>
+                                                                            <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">：</label>
+
+                                                    <div style="padding-top:8px" class="col-sm-8"
+                                 th:text="${category.createUserId}">
+                            </div>
+                        
+                        
+
+                    </div>
+                                                                            <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">：</label>
+
+                                                    <div style="padding-top:8px" class="col-sm-8"
+                                 th:text="${category.createTime}==null?null:${#dates.format(category.createTime,'yyyy-MM-dd HH:mm:ss')}">
+                            </div>
+                        
+
+                    </div>
+                                                                            <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">：</label>
+
+                                                    <div style="padding-top:8px" class="col-sm-8"
+                                 th:text="${category.updateUserId}">
+                            </div>
+                        
+                        
+
+                    </div>
+                                                                            <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">：</label>
+
+                                                    <div style="padding-top:8px" class="col-sm-8"
+                                 th:text="${category.updateTime}==null?null:${#dates.format(category.updateTime,'yyyy-MM-dd HH:mm:ss')}">
+                            </div>
+                        
+
+                    </div>
+                                                    </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div th:include="include::footer"></div>
+</body>
+</html>

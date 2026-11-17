@@ -1,0 +1,12 @@
+#网站配置
+website:
+  #网站名
+  name: 小说精品屋
+  #域名
+  domain: ${WEBSITE_DOMAIN:http://localhost:8083}
+  #SEO关键词
+  keyword: ${website.name},小说阅读,在线阅读,小说听书,在线听书,语音朗读,小说目录,小说更新,完结小说
+  #SEO描述
+  description: ${website.name}提供小说在线阅读、章节目录与更新信息，支持浏览器语音朗读和在线听书。在分类、排行榜与完结作品中发现喜欢的故事，随时切换阅读与听书。
+  #联系QQ
+  qq:

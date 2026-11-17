@@ -1,0 +1,38 @@
+# Run separately from the application-only canonical Compose project.
+# Use a fresh local directory; never point this at legacy Redis data or NFS.
+name: novel-app-redis
+services:
+  redis:
+    image: ${REDIS_IMAGE:-redis:7.4.5-alpine}
+    container_name: novel-app-redis-1
+    restart: unless-stopped
+    init: true
+    user: redis
+    mem_limit: 96m
+    memswap_limit: 128m
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set the existing Redis password}
+    command:
+      - /bin/sh
+      - -ec
+      - exec redis-server --appendonly yes --appendfsync everysec --maxmemory 48mb --maxmemory-policy allkeys-lru --requirepass "$$REDIS_PASSWORD"
+    # Applications connect to novel-app-redis-1:6379 on the shared Docker network.
+    # No host port is published.
+    volumes:
+      - type: bind
+        source: ${LOCAL_REDIS_DATA:-/opt/novel-plus/shared/local-redis/data}
+        target: /data
+        bind: {create_host_path: false}
+    networks: [application]
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$REDIS_PASSWORD" redis-cli --raw ping | grep -qx PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+networks:
+  application:
+    external: true
+    name: ${APP_DOCKER_NETWORK:-novel-xs001-20261008_default}

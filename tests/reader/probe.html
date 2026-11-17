@@ -1,0 +1,27 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>Sherpa 真实音频探针</title>
+<button id="generate">生成中文和英文 PCM</button><pre id="result">等待用户操作</pre>
+<script type="module">
+import {SherpaEngine} from '/javascript/reader/engine.js';
+import {AudioPlayer} from '/javascript/reader/audio-player.js';
+const engine = new SherpaEngine('/reader/tts-manifest.json', (state, info) => {
+  document.querySelector('#result').textContent = JSON.stringify({state, ...info});
+});
+const player = new AudioPlayer();
+window.probe = {engine, player, results: [], audio: []};
+document.querySelector('#generate').onclick = async () => {
+  try {
+    await player.unlock();
+    await engine.ready();
+    const texts = ['雨停以后，陈舟把三封信放在窗台，等待远方的朋友归来。', 'Hello，今天下午三点，温度是23.5摄氏度。Welcome to the reading room.'];
+    for (let i = 0; i < texts.length; i++) {
+      const audio = await engine.synthesize({segmentId: String(i), text: texts[i]}, 'probe', 1, 1);
+      const rms = Math.sqrt(audio.samples.reduce((sum, x) => sum + x * x, 0) / audio.samples.length);
+      window.probe.results.push({samples: audio.samples.length, sampleRate: audio.sampleRate, duration: audio.duration,
+        rms, elapsedMs: audio.elapsedMs, wasmBytes: audio.wasmBytes, crossOriginIsolated});
+      window.probe.audio.push(audio);
+    }
+    player.play(window.probe.audio[0], 0, () => {});
+    document.querySelector('#result').textContent = JSON.stringify(window.probe.results, null, 2);
+  } catch (error) { window.probe.error = error.message; document.querySelector('#result').textContent = error.stack; }
+};
+</script></html>

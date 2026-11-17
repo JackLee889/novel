@@ -1,0 +1,51 @@
+# From bundle/application, after creating the NEW pic volume (init-data may chown
+# its empty root), and before starting applications:
+# COVER_MIGRATION_ACK=initialize-empty-pic:<effective PIC_VOLUME_NAME> \
+# docker compose -f compose.yaml -f ../migration/compose.covers.yaml \
+#   --profile migration-covers run --rm migration-covers
+# Data and script mounts resolve relative to the first compose.yaml in application.
+services:
+  migration-covers:
+    image: ${MYSQL_IMAGE:?Set MYSQL_IMAGE to the deployment MySQL image}
+    profiles: [migration-covers]
+    user: "0:0"
+    entrypoint: [/bin/bash, /migration/covers.sh]
+    command: []
+    restart: "no"
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:rw,nosuid,noexec,size=16m,mode=1777
+    environment:
+      APP_UID: ${APP_UID:-10001}
+      APP_GID: ${APP_GID:-10001}
+      PIC_VOLUME_NAME: ${PIC_VOLUME_NAME:-${COMPOSE_PROJECT_NAME}_pic-data}
+      COVER_MIGRATION_ACK: ${COVER_MIGRATION_ACK:-}
+    volumes:
+      - type: bind
+        source: ../data
+        target: /migration-data
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ../migration/covers.sh
+        target: /migration/covers.sh
+        read_only: true
+        bind: {create_host_path: false}
+      - type: volume
+        source: pic-data
+        target: /target-pic
+        volume: {nocopy: true}
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+
+# Require the selected volume to exist. This tool never creates a source or target
+# volume and never mounts the original shared-files volume.
+volumes:
+  pic-data:
+    name: ${PIC_VOLUME_NAME:-${COMPOSE_PROJECT_NAME}_pic-data}
+    external: true

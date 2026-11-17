@@ -1,0 +1,66 @@
+{
+  "target": "Production crawler SeoRepository variant from the verified 2026-11-17 online program snapshot",
+  "production_crawl_jar_sha256": "7c70596a3eb241a83f8ac85a93c94ec13305152388dc3032b5a60ac23fe20d30",
+  "production_crawl_class_sha256": "e9d1f2bcf32bd62ea6515fc031e596bf10684dd5bd43774e7cca48ddb69e390a",
+  "recovered_java_sha256": "5378b6495f83453e76522abe5bf4950acc92dcc519418253c183e6e2a7e8d458",
+  "source_provenance": {
+    "kind": "Original Java source recovery; no decompiler used",
+    "historical_baseline": "backups/latest-code-sync-20261009/backend-build-20261009-191401/workspace/novel-common/src/main/java/com/java2nb/novel/seo/SeoRepository.java",
+    "historical_baseline_sha256": "7723a5e02ff92d1650cff20eb7f6035c432c7b1acb8a9125fc3ab010130ebb19",
+    "method_body_donor": "novel-common/src/main/java/com/java2nb/novel/seo/SeoRepository.java in maintained source",
+    "method_body_donor_sha256": "21251cadf51bd84e411bc5ff30d4fd3810c93352084809184096756304ce9afa",
+    "replaced_bodies": {
+      "dirty": {
+        "original_body_sha256": "4d428ecaa5f4c537191a1431d3a5e9bdfd1bd04a0889c55feb8c70f0c73c65f2",
+        "patched_body_sha256": "fff5f33de6c5467fdef7248e5b89333aa67158d5fd2c72c0c922c4515d9ebe6e"
+      },
+      "syncVisibility": {
+        "original_body_sha256": "22e65709b14df7d5f7fbf567401747af6a343c388b40e2f458456e96dde5c0b0",
+        "patched_body_sha256": "7aee71862996d901ca0746bfa9546766223e8882b6e67b8c9a2cf496c957b545"
+      },
+      "reconcileBook": {
+        "original_body_sha256": "d06a953bd735538aa419656906c8623267d19ced627a9e56668451c58dea5b0f",
+        "patched_body_sha256": "8c2b289d9dcf21472dcebea2d75d8d679a3f2c3ad6a7661cf17926f7a3c65d84"
+      }
+    }
+  },
+  "canonicalization": "Ignore debug attributes and StackMap frames; sort methods/fields/inner-class/nest members; rebuild constant pool. MethodParameters, annotations and symbolic instructions were also compared separately.",
+  "compatibility_step": {
+    "purpose": "Retain the production patcher's one inert duplicate synthetic row mapper, without changing business instructions",
+    "input_expected_canonical_sha256": "b04b0a183a7913b5af4808e219a28d195f6b3a9f9b35665ded4ca7ac43b5ce3f",
+    "output_expected_canonical_sha256": "f9cf7bb967208826d4af38e99703d2dccf9114fea3834b676d5ac2a8d6dc28ff",
+    "behavior": "Clone identical private static synthetic mapper lambda$reconcileBook$17 as lambda$reconcileBook$22, redirect its one bootstrap reference, retain unused17 exactly as production did.",
+    "requires": "Existing JDK21 (validated with21.0.8+9) and Python3 standard library; bundled JDK ASM; no external dependency download.",
+    "rejects_changed_source_classes": true
+  },
+  "validation": {
+    "SeoRepository$ChapterRow.class": {
+      "canonical_equal": true,
+      "canonical_sha256": "c78b78565e77b00b8b6ef04d36ae8fc71dcfbb363d09f79ac083682ff2d049c6"
+    },
+    "SeoRepository$CoreTicket.class": {
+      "canonical_equal": true,
+      "canonical_sha256": "6cc48acc199e7253be66f277a5b7c5f77f90cb812fc7351f2556626ce562c664"
+    },
+    "SeoRepository$Observation.class": {
+      "canonical_equal": true,
+      "canonical_sha256": "d2f65970e6281092a4b9658715a6005f851c7e5976e973cb7f754f9239938c77"
+    },
+    "SeoRepository$Ticket.class": {
+      "canonical_equal": true,
+      "canonical_sha256": "b64661d16828d02d0fc56db9350446ad52cc5f477fce9a07d57b4db9fa97611f"
+    },
+    "SeoRepository.class": {
+      "canonical_equal": true,
+      "canonical_sha256": "f9cf7bb967208826d4af38e99703d2dccf9114fea3834b676d5ac2a8d6dc28ff",
+      "raw_equal": false
+    },
+    "compatibility_idempotent": true,
+    "rejects_newer_common_class": true
+  },
+  "limits": [
+    "Raw class bytes differ because compiler metadata/constant-pool/debug layout is not preserved. All effective semantic class structures match after the pinned compatibility step.",
+    "This is a crawler-specific source override; the current common/frontend source version must remain unchanged.",
+    "Server-authoritative packaging must remove all SeoRepository-family classes from the crawler nested common library so its newer-only nested types do not remain."
+  ]
+}

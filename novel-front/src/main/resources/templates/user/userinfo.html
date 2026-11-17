@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="page">
+<head th:replace="~{common/site :: head('个人中心','个人中心，发现好故事，享受阅读。')}"></head>
+<body data-page="profile" data-requires-login>
+<th:block th:replace="~{common/site :: header('user')}"></th:block>
+<main id="main" class="container page-main"><div class="account-layout"><nav th:replace="~{common/site :: accountNav('userinfo')}"></nav><section class="account-content"><h1>我的阅读时光</h1><div class="profile-overview"><img id="profile-photo" class="avatar" src="/images/man.png" alt="账户头像" width="72" height="72"><div><h2 id="profile-name">正在加载…</h2><p id="profile-account"></p><a class="text-link" href="/user/setup.html">编辑个人资料</a></div><div><p><span id="accountBalance" class="balance-number">—</span>屋币</p><a class="button" href="/pay/index.html" th:if="${businessFeatures != null and businessFeatures.paymentEnabled}">账户充值</a></div></div><section><div class="section-heading"><h2>从上次读到的地方开始</h2><a class="text-link" href="/user/favorites.html">我的书架<span aria-hidden="true">→</span></a></div><div id="shelf-results" class="shelf-grid" aria-live="polite"><p class="loading-line">正在加载…</p></div></section></section></div></main>
+<th:block th:replace="~{common/site :: footer}"></th:block>
+</body></html>
